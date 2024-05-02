@@ -1,0 +1,50 @@
+const fetch = require('node-fetch');
+
+// Function to authenticate with FileNet and obtain an access token
+async function authenticate() {
+    const authUrl = 'https://your-filenet-server.com/authenticate'; // Replace with actual authentication URL
+    const credentials = {
+        username: 'your_username',
+        password: 'your_password'
+    };
+
+    const response = await fetch(authUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(credentials)
+    });
+
+    if (response.ok) {
+        const data = await response.json();
+        return data.access_token; // Assuming the response includes an access token
+    } else {
+        throw new Error('Authentication failed');
+    }
+}
+
+// Function to send a request to FileNet
+async function sendRequest() {
+    const accessToken = await authenticate();
+    const requestUrl = 'https://your-filenet-server.com/api/documents'; // Replace with actual API endpoint
+
+    const response = await fetch(requestUrl, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${accessToken}`
+        }
+    });
+
+    if (response.ok) {
+        const data = await response.json();
+        console.log('Response from FileNet:', data);
+    } else {
+        throw new Error('Request failed');
+    }
+}
+
+// Call the function to send a request
+sendRequest()
+    .then(() => console.log('Request sent successfully'))
+    .catch(error => console.error('Error:', error));
