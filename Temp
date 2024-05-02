@@ -1,50 +1,102 @@
 const fetch = require('node-fetch');
 
-// Function to authenticate with FileNet and obtain an access token
-async function authenticate() {
-    const authUrl = 'https://your-filenet-server.com/authenticate'; // Replace with actual authentication URL
-    const credentials = {
-        username: 'your_username',
-        password: 'your_password'
-    };
+var environment = "sys.env.environment";
 
-    const response = await fetch(authUrl, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(credentials)
+var headers = {
+  "x-ilm-client-id": "X_IBM Client_id",
+  "RequestTonid": "RequestTxnld",
+  "UserId": "AT11900021",
+  "User-Agent": "Quadient",
+  "ServiceName": "SEARCH SERVICE",
+  "UserType": "eforestledesignServices",
+  "Authorization": "APIC Token",
+  "Content-Type": "application/xml",
+  "Accept": "*/*"
+};
+
+console.log("I am in function");
+
+async function searchDocument(xmlInput, url) {
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: headers,
+      body: xmlInput
     });
-
-    if (response.ok) {
-        const data = await response.json();
-        return data.access_token; // Assuming the response includes an access token
-    } else {
-        throw new Error('Authentication failed');
+    console.log(res);
+    if (!res.ok) {
+      throw new Error(`Failed: ${res.status}`);
     }
+    const response = await res.text();
+    console.log("Search result:", response);
+    // Generate output response XML based on search result
+    const outputXML = generateOutputResponse(response);
+    console.log("Output response:", outputXML);
+  } catch (error) {
+    console.error(error);
+  }
 }
 
-// Function to send a request to FileNet
-async function sendRequest() {
-    const accessToken = await authenticate();
-    const requestUrl = 'https://your-filenet-server.com/api/documents'; // Replace with actual API endpoint
+// Function to generate output response XML
+function generateOutputResponse(searchResult) {
+  // Constructing the output XML based on the search result
+  var outputXML = `<?xml version="1.0" encoding="UTF-8"?>
+<EformsResponse (getFormDocumentDetails Service)>
+  <SOAP_Domain_Msg xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/">
+    <Context operation="FormRetrieval" operationType="REQUEST_RESPONSE" portType="formsAdminLookup" portTypeNamespace="http://services.eforms.metlife.com/formsAdminLookup/">
+      <SOAP_Version>1.1</SOAP_Version>
+      <Namespace xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"/>
+    </Context>
+    <Header/>
+    <Body>
+      <p989:FormRetrievalResponse xmlns:p989="http://services.eforms.metlife.com/formsAdminLookup/">
+        <ServiceInfoOut>
+          <ServiceVersion>MB v2.0</ServiceVersion>
+          <ReturnCode>1</ReturnCode>
+          <ReasonMessage>${searchResult}</ReasonMessage>
+        </ServiceInfoOut>
+        <Document/>
+      </p989:FormRetrievalResponse>
+    </Body>
+  </SOAP_Domain_Msg>
+</EformsResponse (getFormDocumentDetails Service)>`;
 
-    const response = await fetch(requestUrl, {
-        method: 'GET',
-        headers: {
-            'Authorization': `Bearer ${accessToken}`
-        }
-    });
-
-    if (response.ok) {
-        const data = await response.json();
-        console.log('Response from FileNet:', data);
-    } else {
-        throw new Error('Request failed');
-    }
+  return outputXML;
 }
 
-// Call the function to send a request
-sendRequest()
-    .then(() => console.log('Request sent successfully'))
-    .catch(error => console.error('Error:', error));
+// Function to construct XML search criteria
+function constructSearchCriteria(documentType, keyword) {
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<searchCriteria>
+  <documentType>${documentType}</documentType>
+  <keyword>${keyword}</keyword>
+</searchCriteria>`;
+}
+
+// Example usage:
+if (environment === "dav") {
+  url = "https://environment.api.metlife.com/metlife/development/dns/v2/searches/documents";
+} else if (environment === "int") {
+  url = `https://${environment}.api.estlife.com/metlife/Integration/dom/v2/searches/documents`;
+} else if (environment === "qa") {
+  url = `https://${environment}.api.metlife.com/artlife/qa/das/v2/searches/documents`;
+} else if (environment === "prod") {
+  url = "https://api.metlife.com/metlife/production/des/v2/searches/documents";
+}
+
+var xmlInput = `<?xml version="1.0" encoding="UTF-8"?>
+<NS2:Envelope xmlns:NS1="http://schemas.xmlsoap.org/soap/envelope/">
+  <NS1:Body>
+    <NS2:FormRetrieval xmlns:NS2="http://services.eforms.metlife.com/formsAdminLookup/">
+      <ServiceInfo>
+        <Traceld>9c6269ef-2195-4fe2-a194-bc9dc6a81646</Traceld>
+      </ServiceInfo>
+      <DocInfo>
+        <ID>43132/10</ID>
+        <DocType>PDF</DocType>
+      </DocInfo>
+    </NS2:FormRetrieval>
+  </NS1:Body>
+</NS2:Envelope>`;
+
+searchDocument(xmlInput, url);
