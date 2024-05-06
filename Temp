@@ -17,3 +17,32 @@ const foundValues = findValues(jsonData);
 
 // Output the result
 console.log(foundValues);
+
+
+// Define the URL and request options
+const url = 'https://your-filenet-server.com/api/endpoint';
+const options = {
+  method: 'GET', // or 'POST', 'PUT', etc.
+  headers: {
+    'Content-Type': 'application/json',
+    // Add any required authentication headers
+    'Authorization': 'Bearer yourAccessToken'
+  }
+};
+
+// Make the API call
+fetch(url, options)
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return response.json();
+  })
+  .then(data => {
+    // Handle the response data
+    console.log(data);
+  })
+  .catch(error => {
+    // Handle errors
+    console.error('There was a problem with the API request:', error);
+  });
