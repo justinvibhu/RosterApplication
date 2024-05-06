@@ -1,12 +1,19 @@
 function findValues(obj) {
+  let values = [];
+
   for (let key in obj) {
     if (typeof obj[key] === 'object') {
-      findValues(obj[key]); // Recursion for nested objects
+      values = values.concat(findValues(obj[key])); // Recursion for nested objects
     } else if (key === 'Value') {
-      console.log(obj[key]); // Output the value
+      values.push(obj[key]); // Add value to the array
     }
   }
+
+  return values;
 }
 
-// Call the function with the JSON data
-findValues(jsonData);
+// Call the function with the JSON data and store the result in a variable
+const foundValues = findValues(jsonData);
+
+// Output the result
+console.log(foundValues);
