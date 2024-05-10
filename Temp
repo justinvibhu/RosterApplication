@@ -1,30 +1,29 @@
-const fs = require('fs');
+// Import required Java classes
+var FileReader = Java.type('java.io.FileReader');
+var BufferedReader = Java.type('java.io.BufferedReader');
 
 // Path to your CSV file
-const filePath = 'path/to/your/data.csv';
+var filePath = '/path/to/your/data.csv';
+
+// OID to search for
+var oidToSearch = '124';
+
+// Variable to store the FormNumber
+var formNumber = null;
 
 // Read the CSV file
-fs.readFile(filePath, 'utf8', (err, data) => {
-  if (err) {
-    console.error('Error reading CSV file:', err);
-    return;
-  }
+var reader = new BufferedReader(new FileReader(filePath));
+var line;
+while ((line = reader.readLine()) !== null) {
+    var columns = line.split(',');
+    var oid = columns[0].trim();
+    var formNumberValue = columns[1].trim();
+    if (oid === oidToSearch) {
+        formNumber = formNumberValue;
+        break;
+    }
+}
+reader.close();
 
-  // Split the CSV data into rows
-  const rows = data.split('\n');
-  
-  // Extract the header row
-  const header = rows[0].split(',');
-
-  // Find the index of the "Age" column
-  const ageIndex = header.indexOf('Age');
-  
-  // Select a random row index (excluding the header)
-  const randomRowIndex = Math.floor(Math.random() * (rows.length - 1)) + 1;
-  
-  // Extract the age of the random person
-  const randomPersonAge = rows[randomRowIndex].split(',')[ageIndex].trim();
-
-  // Print the age of the random person to the console
-  console.log('Age of the random person:', randomPersonAge);
-});
+// Print the FormNumber to the console
+print('FormNumber for OID ' + oidToSearch + ': ' + formNumber);
