@@ -1,3 +1,48 @@
+//add from
+// Import required Java classes
+var FileReader = Java.type('java.io.FileReader');
+var BufferedReader = Java.type('java.io.BufferedReader');
+var FileWriter = Java.type('java.io.FileWriter');
+var BufferedWriter = Java.type('java.io.BufferedWriter');
+
+// Path to your CSV file
+var filePath = 'data.csv';
+
+// JSON input data
+var jsonData = {
+    "OID": "200",
+    "FormNumber": "form200"
+};
+
+// Convert JSON data to CSV format
+var csvData = Object.values(jsonData).join(',');
+
+// Read the CSV file
+var reader = new BufferedReader(new FileReader(filePath));
+var lines = [];
+var line;
+while ((line = reader.readLine()) !== null) {
+    lines.push(line);
+}
+reader.close();
+
+// Add the new record to the lines array
+lines.push(csvData);
+
+// Write the updated lines back to the CSV file
+var writer = new BufferedWriter(new FileWriter(filePath));
+lines.forEach(function(currentLine) {
+    writer.write(currentLine + '\n');
+});
+writer.close();
+
+print('New record added successfully to the CSV file.');
+
+
+
+
+
+
 // Import required Java classes
 var FileReader = Java.type('java.io.FileReader');
 var BufferedReader = Java.type('java.io.BufferedReader');
