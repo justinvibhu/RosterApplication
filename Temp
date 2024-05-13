@@ -1,3 +1,20 @@
+
+// JSON input data
+var jsonData = {
+    "OID": "200",
+    "FormNumber": "form200"
+};
+
+// Extract OID and FormNumber from JSON data
+var oid = jsonData.OID;
+var formNumber = jsonData.FormNumber;
+
+// Print the extracted values to the console
+print('OID:', oid);
+print('FormNumber:', formNumber);
+
+
+
 //add from
 // Import required Java classes
 var FileReader = Java.type('java.io.FileReader');
