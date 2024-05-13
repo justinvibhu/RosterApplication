@@ -1,4 +1,10 @@
 
+// JSON input data as a string
+var jsonDataString = '{"OID": "200", "FormNumber": "form200"}';
+
+// Parse the JSON string into an object
+var jsonData = JSON.parse(jsonDataString);
+
 // JSON input data
 var jsonData = {
     "OID": "200",
