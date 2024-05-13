@@ -1,3 +1,43 @@
+// Import required Java classes
+var FileReader = Java.type('java.io.FileReader');
+var BufferedReader = Java.type('java.io.BufferedReader');
+var FileWriter = Java.type('java.io.FileWriter');
+var BufferedWriter = Java.type('java.io.BufferedWriter');
+
+// Path to your CSV file
+var filePath = 'data.csv';
+
+// JSON input data as a string
+var jsonInput = '{"OID": "200", "FormNumber": "form200"}'; // Example JSON input
+
+// Convert JSON input to CSV format
+var jsonData = JSON.parse(jsonInput);
+var csvData = jsonData.OID + ',' + jsonData.FormNumber;
+
+// Read the CSV file
+var reader = new BufferedReader(new FileReader(filePath));
+var lines = [];
+var line;
+while ((line = reader.readLine()) !== null) {
+    lines.push(line);
+}
+reader.close();
+
+// Add the new record to the lines array
+lines.push(csvData);
+
+// Write the updated lines back to the CSV file
+var writer = new BufferedWriter(new FileWriter(filePath));
+lines.forEach(function(currentLine) {
+    writer.write(currentLine + '\n');
+});
+writer.close();
+
+console.log('New record added successfully to the CSV file.');
+
+
+
+
 
 // JSON input data as a string
 var jsonDataString = '{"OID": "200", "FormNumber": "form200"}';
