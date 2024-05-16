@@ -36,6 +36,71 @@ var xmlDoc = builder.parse(is);
 
 // Function to extract property value based on property name
 function extractPropertyValue(propertyName) {
+    print("Extracting property value for:", propertyName);
+    var criteriaNodes = xmlDoc.getElementsByTagName('PropertyName');
+    for (var i = 0; i < criteriaNodes.getLength(); i++) {
+        var node = criteriaNodes.item(i);
+        if (node.getTextContent() === propertyName) {
+            print("Found property:", propertyName);
+            var valueNode = node.nextSibling;
+            var value = valueNode ? valueNode.getTextContent().trim() : null;
+            print("Extracted value:", value);
+            return value;
+        }
+    }
+    print("Property not found:", propertyName);
+    return null; // Property not found
+}
+
+// Get the values
+var attachmentKey = extractPropertyValue("AttachmentKey");
+var mimeType = extractPropertyValue("MimeType");
+
+print("Attachment Key:", attachmentKey);
+print("MIME Type:", mimeType);
+
+
+
+
+
+// Import required Java classes
+var ByteArrayInputStream = Java.type('java.io.ByteArrayInputStream');
+var DocumentBuilderFactory = Java.type('javax.xml.parsers.DocumentBuilderFactory');
+var InputSource = Java.type('org.xml.sax.InputSource');
+
+// Your XML string
+var xmlStr = `
+<CriteriaExpression>
+    <CriteriaOperator>AND</CriteriaOperator>
+    <Criteria>
+        <ObjectType>Attachment</ObjectType>
+        <!-- Document/Form Id -->
+        <PropertyName>AttachmentKey</PropertyName>
+        <PropertyValue>43132</PropertyValue>
+        <Operation>EQUALS</Operation>
+        <ComparedObjectType>FormInstance</ComparedObjectType>
+        <ComparedPropertyName>FormInstance.Attachment.AttachmentKey</ComparedPropertyName>
+    </Criteria>
+    <Criteria>
+        <ObjectType>Attachment</ObjectType>
+        <!-- Document/Form type -->
+        <PropertyName>MimeType</PropertyName>
+        <PropertyValue>PDF</PropertyValue>
+        <Operation>EQUALS</Operation>
+        <ComparedObjectType>FormInstance</ComparedObjectType>
+        <ComparedPropertyName>FormInstance.Attachment.MimeType</ComparedPropertyName>
+    </Criteria>
+</CriteriaExpression>
+`;
+
+// Parse the XML string
+var factory = DocumentBuilderFactory.newInstance();
+var builder = factory.newDocumentBuilder();
+var is = new InputSource(new ByteArrayInputStream(xmlStr.getBytes('UTF-8')));
+var xmlDoc = builder.parse(is);
+
+// Function to extract property value based on property name
+function extractPropertyValue(propertyName) {
     var criteriaNodes = xmlDoc.getElementsByTagName('PropertyName');
     for (var i = 0; i < criteriaNodes.getLength(); i++) {
         var node = criteriaNodes.item(i);
