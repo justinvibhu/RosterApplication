@@ -1,137 +1,54 @@
 // Import required Java classes
-var FileReader = Java.type('java.io.FileReader');
-var BufferedReader = Java.type('java.io.BufferedReader');
-var FileWriter = Java.type('java.io.FileWriter');
-var BufferedWriter = Java.type('java.io.BufferedWriter');
+var ByteArrayInputStream = Java.type('java.io.ByteArrayInputStream');
+var DocumentBuilderFactory = Java.type('javax.xml.parsers.DocumentBuilderFactory');
+var InputSource = Java.type('org.xml.sax.InputSource');
 
-// Path to your CSV file
-var filePath = 'data.csv';
+// Your XML string
+var xmlStr = `
+<CriteriaExpression>
+    <CriteriaOperator>AND</CriteriaOperator>
+    <Criteria>
+        <ObjectType>Attachment</ObjectType>
+        <!-- Document/Form Id -->
+        <PropertyName>AttachmentKey</PropertyName>
+        <PropertyValue>43132</PropertyValue>
+        <Operation>EQUALS</Operation>
+        <ComparedObjectType>FormInstance</ComparedObjectType>
+        <ComparedPropertyName>FormInstance.Attachment.AttachmentKey</ComparedPropertyName>
+    </Criteria>
+    <Criteria>
+        <ObjectType>Attachment</ObjectType>
+        <!-- Document/Form type -->
+        <PropertyName>MimeType</PropertyName>
+        <PropertyValue>PDF</PropertyValue>
+        <Operation>EQUALS</Operation>
+        <ComparedObjectType>FormInstance</ComparedObjectType>
+        <ComparedPropertyName>FormInstance.Attachment.MimeType</ComparedPropertyName>
+    </Criteria>
+</CriteriaExpression>
+`;
 
-// JSON input data as a string
-var jsonInput = '{"OID": "200", "FormNumber": "form200"}'; // Example JSON input
+// Parse the XML string
+var factory = DocumentBuilderFactory.newInstance();
+var builder = factory.newDocumentBuilder();
+var is = new InputSource(new ByteArrayInputStream(xmlStr.getBytes('UTF-8')));
+var xmlDoc = builder.parse(is);
 
-// Convert JSON input to CSV format
-var jsonData = JSON.parse(jsonInput);
-var csvData = jsonData.OID + ',' + jsonData.FormNumber;
-
-// Read the CSV file
-var reader = new BufferedReader(new FileReader(filePath));
-var lines = [];
-var line;
-while ((line = reader.readLine()) !== null) {
-    lines.push(line);
-}
-reader.close();
-
-// Add the new record to the lines array
-lines.push(csvData);
-
-// Write the updated lines back to the CSV file
-var writer = new BufferedWriter(new FileWriter(filePath));
-lines.forEach(function(currentLine) {
-    writer.write(currentLine + '\n');
-});
-writer.close();
-
-console.log('New record added successfully to the CSV file.');
-
-
-
-
-
-// JSON input data as a string
-var jsonDataString = '{"OID": "200", "FormNumber": "form200"}';
-
-// Parse the JSON string into an object
-var jsonData = JSON.parse(jsonDataString);
-
-// JSON input data
-var jsonData = {
-    "OID": "200",
-    "FormNumber": "form200"
-};
-
-// Extract OID and FormNumber from JSON data
-var oid = jsonData.OID;
-var formNumber = jsonData.FormNumber;
-
-// Print the extracted values to the console
-print('OID:', oid);
-print('FormNumber:', formNumber);
-
-
-
-//add from
-// Import required Java classes
-var FileReader = Java.type('java.io.FileReader');
-var BufferedReader = Java.type('java.io.BufferedReader');
-var FileWriter = Java.type('java.io.FileWriter');
-var BufferedWriter = Java.type('java.io.BufferedWriter');
-
-// Path to your CSV file
-var filePath = 'data.csv';
-
-// JSON input data
-var jsonData = {
-    "OID": "200",
-    "FormNumber": "form200"
-};
-
-// Convert JSON data to CSV format
-var csvData = Object.values(jsonData).join(',');
-
-// Read the CSV file
-var reader = new BufferedReader(new FileReader(filePath));
-var lines = [];
-var line;
-while ((line = reader.readLine()) !== null) {
-    lines.push(line);
-}
-reader.close();
-
-// Add the new record to the lines array
-lines.push(csvData);
-
-// Write the updated lines back to the CSV file
-var writer = new BufferedWriter(new FileWriter(filePath));
-lines.forEach(function(currentLine) {
-    writer.write(currentLine + '\n');
-});
-writer.close();
-
-print('New record added successfully to the CSV file.');
-
-
-
-
-
-
-// Import required Java classes
-var FileReader = Java.type('java.io.FileReader');
-var BufferedReader = Java.type('java.io.BufferedReader');
-
-// Path to your CSV file
-var filePath = '/path/to/your/data.csv';
-
-// OID to search for
-var oidToSearch = '124';
-
-// Variable to store the FormNumber
-var formNumber = null;
-
-// Read the CSV file
-var reader = new BufferedReader(new FileReader(filePath));
-var line;
-while ((line = reader.readLine()) !== null) {
-    var columns = line.split(',');
-    var oid = columns[0].trim();
-    var formNumberValue = columns[1].trim();
-    if (oid === oidToSearch) {
-        formNumber = formNumberValue;
-        break;
+// Function to extract property value based on property name
+function extractPropertyValue(propertyName) {
+    var criteriaNodes = xmlDoc.getElementsByTagName('PropertyName');
+    for (var i = 0; i < criteriaNodes.getLength(); i++) {
+        var node = criteriaNodes.item(i);
+        if (node.getTextContent() === propertyName) {
+            return node.getNextSibling().getTextContent().trim();
+        }
     }
+    return null; // Property not found
 }
-reader.close();
 
-// Print the FormNumber to the console
-print('FormNumber for OID ' + oidToSearch + ': ' + formNumber);
+// Get the values
+var attachmentKey = extractPropertyValue("AttachmentKey");
+var mimeType = extractPropertyValue("MimeType");
+
+print("Attachment Key:", attachmentKey);
+print("MIME Type:", mimeType);
