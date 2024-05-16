@@ -10,6 +10,61 @@ var xmlStr = `
     <Criteria>
         <ObjectType>Attachment</ObjectType>
         <!-- Document/Form Id -->
+        <for:PropertyName>AttachmentKey</for:PropertyName>
+        <for:PropertyValue>43132</for:PropertyValue>
+        <Operation>EQUALS</Operation>
+        <ComparedObjectType>FormInstance</ComparedObjectType>
+        <ComparedPropertyName>FormInstance.Attachment.AttachmentKey</ComparedPropertyName>
+    </Criteria>
+    <Criteria>
+        <ObjectType>Attachment</ObjectType>
+        <!-- Document/Form type -->
+        <for:PropertyName>MimeType</for:PropertyName>
+        <for:PropertyValue>PDF</for:PropertyValue>
+        <Operation>EQUALS</Operation>
+        <ComparedObjectType>FormInstance</ComparedObjectType>
+        <ComparedPropertyName>FormInstance.Attachment.MimeType</ComparedPropertyName>
+    </Criteria>
+</CriteriaExpression>
+`;
+
+// Parse the XML string
+var factory = DocumentBuilderFactory.newInstance();
+var builder = factory.newDocumentBuilder();
+var is = new InputSource(new ByteArrayInputStream(xmlStr.getBytes('UTF-8')));
+var xmlDoc = builder.parse(is);
+
+// Function to extract property value based on property name with namespace prefix
+function extractPropertyValueWithNamespace(propertyName) {
+    var nodes = xmlDoc.getElementsByTagNameNS("*", propertyName);
+    if (nodes.getLength() > 0) {
+        return nodes.item(0).getTextContent().trim();
+    }
+    return null; // Property not found
+}
+
+// Get the values with namespace prefix
+var attachmentKey = extractPropertyValueWithNamespace("for:PropertyName");
+var mimeType = extractPropertyValueWithNamespace("for:PropertyValue");
+
+print("Attachment Key:", attachmentKey);
+print("MIME Type:", mimeType);
+
+
+
+
+// Import required Java classes
+var ByteArrayInputStream = Java.type('java.io.ByteArrayInputStream');
+var DocumentBuilderFactory = Java.type('javax.xml.parsers.DocumentBuilderFactory');
+var InputSource = Java.type('org.xml.sax.InputSource');
+
+// Your XML string
+var xmlStr = `
+<CriteriaExpression>
+    <CriteriaOperator>AND</CriteriaOperator>
+    <Criteria>
+        <ObjectType>Attachment</ObjectType>
+        <!-- Document/Form Id -->
         <PropertyName>AttachmentKey</PropertyName>
         <PropertyValue>43132</PropertyValue>
         <Operation>EQUALS</Operation>
