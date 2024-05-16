@@ -1,3 +1,21 @@
+function extractPropertyValue(propertyName) {
+    var propertyNodes = xmlDoc.getElementsByTagName("for:PropertyName");
+    for (var i = 0; i < propertyNodes.getLength(); i++) {
+        var node = propertyNodes.item(i);
+        if (node.getTextContent().trim() === propertyName) {
+            var valueNode = node.nextSibling;
+            return valueNode.getTextContent().trim();
+        }
+    }
+    return null; // Property not found
+}
+
+// Get the values
+var attachmentKey = extractPropertyValue("AttachmentKey");
+var mimeType = extractPropertyValue("MimeType");
+
+
+
 // Import required Java classes
 var ByteArrayInputStream = Java.type('java.io.ByteArrayInputStream');
 var DocumentBuilderFactory = Java.type('javax.xml.parsers.DocumentBuilderFactory');
