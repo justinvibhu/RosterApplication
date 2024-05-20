@@ -1,3 +1,87 @@
+
+//Search
+// Import required Java classes
+var ByteArrayInputStream = Java.type('java.io.ByteArrayInputStream');
+var DocumentBuilderFactory = Java.type('javax.xml.parsers.DocumentBuilderFactory');
+var InputSource = Java.type('org.xml.sax.InputSource');
+var NodeList = Java.type('org.w3c.dom.NodeList');
+
+// Your XML string
+var xmlStr = `
+<root>
+    <CriteriaExpression>
+        <ns2:objectType>metformAssociation</ns2:objectType>
+        <ns2:PropertyName>Met_ClientId</ns2:PropertyName>
+        <ns2:PropertyValue>74535</ns2:PropertyValue>
+    </CriteriaExpression>
+    <CriteriaExpression>
+        <ns2:objectType>metformAssociation</ns2:objectType>
+        <ns2:PropertyName>Met_Plancode</ns2:PropertyName>
+        <ns2:PropertyValue>SOH</ns2:PropertyValue>
+    </CriteriaExpression>
+    <CriteriaExpression>
+        <ns2:objectType>metformAssociation</ns2:objectType>
+        <ns2:PropertyName>Met_Plancode</ns2:PropertyName>
+        <ns2:PropertyValue>Dental-E</ns2:PropertyValue>
+    </CriteriaExpression>
+</root>
+`;
+
+// Parse the XML string
+var factory = DocumentBuilderFactory.newInstance();
+factory.setNamespaceAware(true);
+var builder = factory.newDocumentBuilder();
+var is = new InputSource(new ByteArrayInputStream(xmlStr.getBytes('UTF-8')));
+var xmlDoc = builder.parse(is);
+
+// Function to extract all PropertyName and PropertyValue pairs
+function extractAllPropertyValues() {
+    var criteriaExpressions = xmlDoc.getElementsByTagName("CriteriaExpression");
+    var results = [];
+    for (var i = 0; i < criteriaExpressions.getLength(); i++) {
+        var criteria = criteriaExpressions.item(i);
+        var propertyNames = criteria.getElementsByTagName("ns2:PropertyName");
+        var propertyValues = criteria.getElementsByTagName("ns2:PropertyValue");
+        if (propertyNames.getLength() > 0 && propertyValues.getLength() > 0) {
+            var propertyName = propertyNames.item(0).getTextContent().trim();
+            var propertyValue = propertyValues.item(0).getTextContent().trim();
+            results.push({ propertyName: propertyName, propertyValue: propertyValue });
+        }
+    }
+    return results;
+}
+
+// Get all values
+var propertyValues = extractAllPropertyValues();
+propertyValues.forEach(function (item) {
+    print("Property Name:", item.propertyName);
+    print("Property Value:", item.propertyValue);
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function extractPropertyValue(propertyName) {
     var propertyNodes = xmlDoc.getElementsByTagName("for:PropertyName");
     for (var i = 0; i < propertyNodes.getLength(); i++) {
