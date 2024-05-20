@@ -29,6 +29,81 @@ function extractAllPropertyValues() {
     var xPath = javax.xml.xpath.XPathFactory.newInstance().newXPath();
     xPath.setNamespaceContext(nsResolver);
 
+    var criteriaExpressions = xmlDoc.getElementsByTagNameNS('http://MetLife/CMM/FormDocument', 'CriteriaExpression');
+    var results = [];
+
+    for (var i = 0; i < criteriaExpressions.getLength(); i++) {
+        var criteria = criteriaExpressions.item(i);
+        var propertyName = criteria.getElementsByTagNameNS('http://MetLife/CMM/FormDocument', 'PropertyName').item(0).getTextContent().trim();
+        var propertyValue = criteria.getElementsByTagNameNS('http://MetLife/CMM/FormDocument', 'PropertyValue').item(0).getTextContent().trim();
+
+        results.push({ propertyName: propertyName, propertyValue: propertyValue });
+    }
+
+    // Extract UserId and AppName
+    var userId = xmlDoc.getElementsByTagNameNS('http://MetLife/CMM/FormDocument', 'UserId').item(0).getTextContent().trim();
+    var appName = xmlDoc.getElementsByTagNameNS('http://MetLife/CMM/FormDocument', 'AppName').item(0).getTextContent().trim();
+
+    results.push({ propertyName: "UserId", propertyValue: userId });
+    results.push({ propertyName: "AppName", propertyValue: appName });
+
+    return results;
+}
+
+// Get all values
+var propertyValues = extractAllPropertyValues();
+propertyValues.forEach(function(item) {
+    console.log("Property Name:"+ item.propertyName);
+    console.log("Property Value:"+ item.propertyValue);
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Your XML string with namespace declarations
+var xmlStr = `...`;  // The entire XML string you provided goes here
+
+// Import required Java classes
+var ByteArrayInputStream = Java.type('java.io.ByteArrayInputStream');
+var DocumentBuilderFactory = Java.type('javax.xml.parsers.DocumentBuilderFactory');
+var InputSource = Java.type('org.xml.sax.InputSource');
+
+// Parse the XML string
+var factory = DocumentBuilderFactory.newInstance();
+factory.setNamespaceAware(true);
+var builder = factory.newDocumentBuilder();
+var is = new InputSource(new ByteArrayInputStream(xmlStr.getBytes('UTF-8')));
+var xmlDoc = builder.parse(is);
+
+// Function to extract all PropertyName and PropertyValue pairs
+function extractAllPropertyValues() {
+    var nsResolver = {
+        lookupNamespaceURI: function(prefix) {
+            switch (prefix) {
+                case 'ns2':
+                    return 'http://MetLife/CMM/FormDocument';
+                default:
+                    return null;
+            }
+        }
+    };
+
+    var xPath = javax.xml.xpath.XPathFactory.newInstance().newXPath();
+    xPath.setNamespaceContext(nsResolver);
+
     var criteriaExpressions = xPath.evaluate("//ns2:CriteriaExpression", xmlDoc, javax.xml.xpath.XPathConstants.NODESET);
     var results = [];
 
