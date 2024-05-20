@@ -1,3 +1,68 @@
+// Your XML string with namespace declarations
+var xmlStr = `...`;  // The entire XML string you provided goes here
+
+// Import required Java classes
+var ByteArrayInputStream = Java.type('java.io.ByteArrayInputStream');
+var DocumentBuilderFactory = Java.type('javax.xml.parsers.DocumentBuilderFactory');
+var InputSource = Java.type('org.xml.sax.InputSource');
+
+// Parse the XML string
+var factory = DocumentBuilderFactory.newInstance();
+factory.setNamespaceAware(true);
+var builder = factory.newDocumentBuilder();
+var is = new InputSource(new ByteArrayInputStream(xmlStr.getBytes('UTF-8')));
+var xmlDoc = builder.parse(is);
+
+// Function to extract all PropertyName and PropertyValue pairs
+function extractAllPropertyValues() {
+    var nsResolver = {
+        lookupNamespaceURI: function(prefix) {
+            switch (prefix) {
+                case 'ns2':
+                    return 'http://MetLife/CMM/FormDocument';
+                default:
+                    return null;
+            }
+        }
+    };
+
+    var xPath = javax.xml.xpath.XPathFactory.newInstance().newXPath();
+    xPath.setNamespaceContext(nsResolver);
+
+    var criteriaExpressions = xPath.evaluate("//ns2:CriteriaExpression", xmlDoc, javax.xml.xpath.XPathConstants.NODESET);
+    var results = [];
+
+    for (var i = 0; i < criteriaExpressions.getLength(); i++) {
+        var criteria = criteriaExpressions.item(i);
+        var propertyName = xPath.evaluate("ns2:Criteria/ns2:PropertyName", criteria, javax.xml.xpath.XPathConstants.STRING);
+        var propertyValue = xPath.evaluate("ns2:Criteria/ns2:PropertyValue", criteria, javax.xml.xpath.XPathConstants.STRING);
+
+        if (propertyName && propertyValue) {
+            results.push({ propertyName: propertyName.trim(), propertyValue: propertyValue.trim() });
+        }
+    }
+
+    // Extract UserId and AppName
+    var userId = xPath.evaluate("//ns2:UserId", xmlDoc, javax.xml.xpath.XPathConstants.STRING).trim();
+    var appName = xPath.evaluate("//ns2:AppName", xmlDoc, javax.xml.xpath.XPathConstants.STRING).trim();
+
+    results.push({ propertyName: "UserId", propertyValue: userId });
+    results.push({ propertyName: "AppName", propertyValue: appName });
+
+    return results;
+}
+
+// Get all values
+var propertyValues = extractAllPropertyValues();
+propertyValues.forEach(function(item) {
+    print("Property Name:", item.propertyName);
+    print("Property Value:", item.propertyValue);
+});
+
+
+
+
+
 // Function to extract all PropertyName and PropertyValue pairs
 function extractAllPropertyValues() {
     var criteriaExpressions = xmlDoc.getElementsByTagName("CriteriaExpression");
