@@ -1,3 +1,39 @@
+// Function to extract all PropertyName and PropertyValue pairs
+function extractAllPropertyValues() {
+    var criteriaExpressions = xmlDoc.getElementsByTagName("CriteriaExpression");
+    var results = [];
+
+    // Adding UserId and AppName directly to the results
+    var userId = xmlDoc.getElementsByTagNameNS("http://MetLife/CMM/FormDocument", "UserId")[0].textContent.trim();
+    results.push({ propertyName: "UserId", propertyValue: userId });
+
+    var appName = xmlDoc.getElementsByTagNameNS("http://MetLife/CMM/FormDocument", "AppName")[0].textContent.trim();
+    results.push({ propertyName: "AppName", propertyValue: appName });
+
+    // Iterating through CriteriaExpression elements to extract PropertyName and PropertyValue pairs
+    for (var i = 0; i < criteriaExpressions.length; i++) {
+        var criteria = criteriaExpressions[i];
+        var propertyNames = criteria.getElementsByTagNameNS("http://MetLife/CMM/FormDocument", "PropertyName");
+        var propertyValues = criteria.getElementsByTagNameNS("http://MetLife/CMM/FormDocument", "PropertyValue");
+        if (propertyNames.length > 0 && propertyValues.length > 0) {
+            var propertyName = propertyNames[0].textContent.trim();
+            var propertyValue = propertyValues[0].textContent.trim();
+            results.push({ propertyName: propertyName, propertyValue: propertyValue });
+        }
+    }
+    return results;
+}
+
+// Get all values
+var propertyValues = extractAllPropertyValues();
+propertyValues.forEach(function (item) {
+    print("Property Name:", item.propertyName);
+    print("Property Value:", item.propertyValue);
+});
+
+
+
+
 // Your XML string with namespace declarations
 var xmlStr = `
 <soapenv:Body xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
