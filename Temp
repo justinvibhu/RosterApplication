@@ -7,6 +7,85 @@ var DOMSource = Java.type('javax.xml.transform.dom.DOMSource');
 var StreamResult = Java.type('javax.xml.transform.stream.StreamResult');
 var TransformerFactory = Java.type('javax.xml.transform.TransformerFactory');
 
+// XML content
+var xmlString = `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Data xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Key1>MGI</Key1>
+  <Key2>2015DE</Key2>
+  <Delivery>Archive</Delivery>
+  <DocumentType>
+    <DocumentName>ASOLTDEDB</DocumentName>
+  </DocumentType>
+  <DocumentDetails>
+    <!-- Content of DocumentDetails -->
+  </DocumentDetails>
+  <!-- More content within Data -->
+</Data>
+<Data xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Key1>MGI</Key1>
+  <Key2>2015DE</Key2>
+  <Delivery>Archive</Delivery>
+  <DocumentType>
+    <DocumentName>ASOLTDEDB</DocumentName>
+  </DocumentType>
+  <DocumentDetails>
+    <!-- Content of DocumentDetails -->
+  </DocumentDetails>
+  <!-- More content within Data -->
+</Data>`;
+
+// Create a ByteArrayInputStream from the XML string
+var inputStream = new ByteArrayInputStream(xmlString.getBytes());
+
+// Parse the XML
+var factory = DocumentBuilderFactory.newInstance();
+var builder = factory.newDocumentBuilder();
+var doc = builder.parse(new InputSource(inputStream));
+
+// Get the list of all <Data> elements
+var dataList = doc.getElementsByTagName("Data");
+
+// Loop through each <Data> element and print its content
+for (var i = 0; i < dataList.getLength(); i++) {
+    var data = dataList.item(i);
+    var transformerFactory = TransformerFactory.newInstance();
+    var transformer = transformerFactory.newTransformer();
+    var writer = new StringWriter();
+    transformer.transform(new DOMSource(data), new StreamResult(writer));
+    var dataContent = writer.toString();
+    print("Data " + (i + 1) + ":\n" + dataContent);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/ Load required Java classes
+var ByteArrayInputStream = Java.type('java.io.ByteArrayInputStream');
+var DocumentBuilderFactory = Java.type('javax.xml.parsers.DocumentBuilderFactory');
+var InputSource = Java.type('org.xml.sax.InputSource');
+var StringWriter = Java.type('java.io.StringWriter');
+var DOMSource = Java.type('javax.xml.transform.dom.DOMSource');
+var StreamResult = Java.type('javax.xml.transform.stream.StreamResult');
+var TransformerFactory = Java.type('javax.xml.transform.TransformerFactory');
+
 // XML string
 var xmlString = `
 <soapenv:Body xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
