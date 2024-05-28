@@ -1,3 +1,110 @@
+var ByteArrayInputStream = Java.type('java.io.ByteArrayInputStream');
+var DocumentBuilderFactory = Java.type('javax.xml.parsers.DocumentBuilderFactory');
+var InputSource = Java.type('org.xml.sax.InputSource');
+
+// XML string
+var xmlString = `
+<soapenv:Body xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+               xmlns:ns4="http://services.metlife.com/standards/smartservice/controlmessage"
+               xmlns:ns3="urn:com.metlife.ead.channels.services.formDocument.formDocumentV4"
+               xmlns:ns2="http://MetLife/CMM/FormDocument"
+               xmlns="http://services.metlife.com/standards/pingsvc">
+    <ns2:RequestHeader>
+        <ns2:UserId>74345-00371924117</ns2:UserId>
+        <ns2:UserDate>2024-03-20</ns2:UserDate>
+        <ns2:UserTime>07:02:51</ns2:UserTime>
+        <ns2:VendorApp>
+            <ns2:AppName>MYBENEFITS</ns2:AppName>
+        </ns2:VendorApp>
+        <ns2:TransTrackingID>9c6269ef-2195-4fe2-a194-bc9dc6a81646</ns2:TransTrackingID>
+        <ns2:TransType>eForms</ns2:TransType>
+        <ns2:TransSubType>Search eForms</ns2:TransSubType>
+        <ns2:BusinessService>
+            <ns2:ServiceName>searchFormDocument</ns2:ServiceName>
+        </ns2:BusinessService>
+        <ns2:TransExeDate>2024-03-20</ns2:TransExeDate>
+        <ns2:TransExeTime>07:02:51</ns2:TransExeTime>
+    </ns2:RequestHeader>
+    <ns2:Search>
+        <ns2:CriteriaOperator>AND</ns2:CriteriaOperator>
+        <ns2:CriteriaExpression>
+            <ns2:Criteria>
+                <ns2:ObjectType>Met_FormAssociation</ns2:ObjectType>
+                <ns2:PropertyName>Met_ClientId</ns2:PropertyName>
+                <ns2:PropertyValue>74345</ns2:PropertyValue>
+                <ns2:Operation>EQUALS</ns2:Operation>
+                <ns2:ComparedObjectType>FormInstance</ns2:ComparedObjectType>
+                <ns2:ComparedPropertyName>FormInstance.Met_FormAssociation.Met_ClientId</ns2:ComparedPropertyName>
+            </ns2:Criteria>
+        </ns2:CriteriaExpression>
+        <ns2:CriteriaExpression>
+            <ns2:Criteria>
+                <ns2:ObjectType>Met_FormAssociation</ns2:ObjectType>
+                <ns2:PropertyName>Met_PlanCode</ns2:PropertyName>
+                <ns2:PropertyValue>DISABILITY</ns2:PropertyValue>
+                <ns2:Operation>EQUALS</ns2:Operation>
+                <ns2:ComparedObjectType>FormInstance</ns2:ComparedObjectType>
+                <ns2:ComparedPropertyName>FormInstance.Met_FormAssociation.Met_PlanCode</ns2:ComparedPropertyName>
+            </ns2:Criteria>
+        </ns2:CriteriaExpression>
+        <!-- Additional CriteriaExpression elements here -->
+    </ns2:Search>
+</soapenv:Body>`;
+
+function parseXML(xmlString) {
+    var byteArrayInputStream = new ByteArrayInputStream(new java.lang.String(xmlString).getBytes("UTF-8"));
+    var documentBuilderFactory = DocumentBuilderFactory.newInstance();
+    var documentBuilder = documentBuilderFactory.newDocumentBuilder();
+    var document = documentBuilder.parse(new InputSource(byteArrayInputStream));
+
+    var criteriaExpressions = document.getElementsByTagName("ns2:CriteriaExpression");
+
+    var output = "";
+    var count = 1;
+
+    for (var i = 0; i < criteriaExpressions.getLength(); i++) {
+        var criteriaExpression = criteriaExpressions.item(i);
+        var transformer = Java.type('javax.xml.transform.TransformerFactory').newInstance().newTransformer();
+        var stringWriter = new Java.type('java.io.StringWriter');
+        var domSource = new Java.type('javax.xml.transform.dom.DOMSource')(criteriaExpression);
+        var streamResult = new Java.type('javax.xml.transform.stream.StreamResult')(stringWriter);
+        transformer.transform(domSource, streamResult);
+        var criteriaExpressionString = stringWriter.toString();
+
+        output += "const criteriaExpression" + count + " = `" + criteriaExpressionString + "`;\n";
+        count++;
+    }
+
+    return { output: output, count: count - 1 };
+}
+
+var result = parseXML(xmlString);
+print("Number of CriteriaExpression elements: " + result.count);
+print(result.output);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Your XML string with namespace declarations
 var xmlStr = `...`;  // The entire XML string you provided goes here
 
