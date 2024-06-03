@@ -1,0 +1,11 @@
+
+ChatGPT
+Subject: Missing 'Content Size' Field in DMF Service Call
+
+Hi Rupesh,
+
+While working on one of the MetOnline functionalities, specifically the searchFromDocument service call to Quadient Eforms, we noticed that the 'content size' field (the PDF size) is missing in the data retrieved from FileNet via the DMF API service.
+
+I discussed this with Sachin Rawat from DMF, and he mentioned that this field isn't integrated into the DMF API service call, which is why we can't get the 'content size' metadata in our response. We need to discuss this with the DMF onshore lead, Lauon, to integrate this field into the existing service.
+
+I've attached a screenshot for your reference.
