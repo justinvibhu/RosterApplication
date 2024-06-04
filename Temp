@@ -1,3 +1,5 @@
+var clientId = xmlDoc.getElementsByTagNameNS("http://MetLife/CMM/FormDocument", "PropertyValue").item(0).getTextContent().trim();
+
 // Import required Java classes
 var ByteArrayInputStream = Java.type('java.io.ByteArrayInputStream');
 var DocumentBuilderFactory = Java.type('javax.xml.parsers.DocumentBuilderFactory');
@@ -31,6 +33,7 @@ function extractAllPropertyValues() {
 var userId = xmlDoc.getElementsByTagNameNS("http://MetLife/CMM/FormDocument", "UserId").item(0).getTextContent().split('-')[0];
 var appName = xmlDoc.getElementsByTagNameNS("http://MetLife/CMM/FormDocument", "AppName").item(0).getTextContent();
 var clientId = xmlDoc.getElementsByTagNameNS("http://MetLife/CMM/FormDocument", "Met_ClientId").item(0).getTextContent();
+var clientId = xmlDoc.getElementsByTagNameNS("http://MetLife/CMM/FormDocument", "PropertyValue").item(0).getTextContent().trim();
 
 // Extract all property values
 var propertyValues = extractAllPropertyValues();
