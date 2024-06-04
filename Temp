@@ -1,4 +1,81 @@
-var xmlStr = `...`; // Your XML string here
+// Import required Java classes
+var ByteArrayInputStream = Java.type('java.io.ByteArrayInputStream');
+var DocumentBuilderFactory = Java.type('javax.xml.parsers.DocumentBuilderFactory');
+var InputSource = Java.type('org.xml.sax.InputSource');
+
+// Parse the XML string
+var factory = DocumentBuilderFactory.newInstance();
+factory.setNamespaceAware(true);
+var builder = factory.newDocumentBuilder();
+var is = new InputSource(new ByteArrayInputStream(xmlStr.getBytes('UTF-8')));
+var xmlDoc = builder.parse(is);
+
+// Function to extract all PropertyName and PropertyValue pairs
+function extractAllPropertyValues() {
+    var criteriaExpressions = xmlDoc.getElementsByTagNameNS("*", "CriteriaExpression");
+    var results = [];
+    for (var i = 0; i < criteriaExpressions.getLength(); i++) {
+        var criteria = criteriaExpressions.item(i);
+        var propertyNames = criteria.getElementsByTagNameNS("*", "PropertyName");
+        var propertyValues = criteria.getElementsByTagNameNS("*", "PropertyValue");
+        if (propertyNames.getLength() > 0 && propertyValues.getLength() > 0) {
+            var propertyName = propertyNames.item(0).getTextContent().trim();
+            var propertyValue = propertyValues.item(0).getTextContent().trim();
+            results.push({ propertyName: propertyName, propertyValue: propertyValue });
+        }
+    }
+    return results;
+}
+
+// Extract UserId, AppName, and ClientId
+var userId = xmlDoc.getElementsByTagNameNS("http://MetLife/CMM/FormDocument", "UserId").item(0).getTextContent().split('-')[0];
+var appName = xmlDoc.getElementsByTagNameNS("http://MetLife/CMM/FormDocument", "AppName").item(0).getTextContent();
+var clientId = xmlDoc.getElementsByTagNameNS("http://MetLife/CMM/FormDocument", "Met_ClientId").item(0).getTextContent();
+
+// Extract all property values
+var propertyValues = extractAllPropertyValues();
+
+// Generate JSON output dynamically
+var jsonOutput = {
+    q: `((searchKeyParameterName=="Met_ClientId"; searchKeyParameterValue=="${userId}");` +
+        propertyValues.map(item => `(searchKeyParameterName=="${item.propertyName}"; searchKeyParameterValue=="${item.propertyValue}")`).join(', ') + ")",
+    extension: {
+        sourceSystemName: appName,
+        searchTypeCode: "EAI1244"
+    },
+    metadata: {
+        limit: 10,
+        offset: 1
+    }
+};
+
+// Output the JSON
+print(JSON.stringify(jsonOutput, null, 2));
+
+// Output the fetched values
+print(`UserId: ${userId}`);
+print(`AppName: ${appName}`);
+print(`ClientId: ${clientId}`);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+r xmlStr = `...`; // Your XML string here
 
 // Import required Java classes
 var ByteArrayInputStream = Java.type('java.io.ByteArrayInputStream');
