@@ -1,3 +1,133 @@
+// Import required Java classes
+var FileReader = Java.type('java.io.FileReader');
+var BufferedReader = Java.type('java.io.BufferedReader');
+var FileWriter = Java.type('java.io.FileWriter');
+var BufferedWriter = Java.type('java.io.BufferedWriter');
+var File = Java.type('java.io.File');
+var Scanner = Java.type('java.util.Scanner');
+
+// Your JSON data
+var json = {
+    "items": [
+        {
+            "documentID": "idd_3nTWep: LPB: [jjggOBEK-OEjj-kLNk-EOgE-OgnMhELNEBIM)",
+            "self": "/dms-cmis/v2/searches/documents/idd_3nTWep: LPB: [jjggOBEK-OEjj-kLNk-EOgE-OgnMhELNEBIm)",
+            "number": "[00771588-1800-C24C-8178-17F3982485DE]",
+            "documentName": "JY0333-71269",
+            "documentDescription": "CLAIM; #10",
+            "mimeTypeName": "application/pdf",
+            "categorization": {},
+            "URL": {
+                "URLID": "https://qa.dms.metlife.com/dms-viewer/web/viewer"
+            },
+            "producer": {
+                "StakeholderManagerOfOwner": "Vanatta, Lisa"
+            },
+            "person": {
+                "personFullName": "Jensen, Jackie"
+            },
+            "form": {
+                "lineOfBusinessName": "Group Benefits",
+                "formName": "Dental Claim Form",
+                "formDescription": "Dental Claim Form",
+                "onlyDirectLinkIndicator": "true",
+                "pagesCount": "6",
+                "regionListText": "All States",
+                "effectiveDateTimestamp": "05/23",
+                "MajorVersionNumber": "1",
+                "formNumber": "JY0333-71269"
+            },
+            "product": {
+                "productName": "DENTAL-E; #101",
+                "productClassName": "Group Dental"
+            }
+        },
+        {
+            "documentID": "idd_3nTWep: LPB: [jjggOBEK-OEjj-kLNk-EOgE-OgnMhELNEBIM)",
+            "self": "/dms-cmis/v2/searches/documents/idd_3nTWep: LPB: [jjggOBEK-OEjj-kLNk-EOgE-OgnMhELNEBIm)",
+            "number": "[00771588-1800-C24C-8178-17F3982485DE]",
+            "documentName": "JY0333-71269",
+            "documentDescription": "CLAIM; #10",
+            "mimeTypeName": "application/pdf",
+            "categorization": {},
+            "URL": {
+                "URLID": "https://qa.dms.metlife.com/dms-viewer/web/viewer"
+            },
+            "producer": {
+                "StakeholderManagerOfOwner": "Vanatta, Lisa"
+            },
+            "person": {
+                "personFullName": "Jensen, Jackie"
+            },
+            "form": {
+                "lineOfBusinessName": "Group Benefits",
+                "formName": "Dental Claim Form",
+                "formDescription": "Dental Claim Form",
+                "onlyDirectLinkIndicator": "true",
+                "pagesCount": "6",
+                "regionListText": "All States",
+                "effectiveDateTimestamp": "05/23",
+                "MajorVersionNumber": "1",
+                "formNumber": "JY0333"
+            },
+            "product": {
+                "productName": "DENTAL-E; #101",
+                "productClassName": "Group Dental"
+            }
+        }
+    ]
+};
+
+// CSV file path
+var csvFilePath = 'path/to/your/csv/file.csv';
+
+// Read CSV file and parse into an object
+var csvData = "";
+var bufferedReader = new BufferedReader(new FileReader(csvFilePath));
+var line;
+while ((line = bufferedReader.readLine()) != null) {
+    csvData += line + "\n";
+}
+bufferedReader.close();
+
+// Parsing CSV data
+var csvRecords = csvData.split("\n");
+var formNumberToOID = {};
+for (var i = 1; i < csvRecords.length; i++) {
+    var record = csvRecords[i].split(",");
+    formNumberToOID[record[1]] = record[0];
+}
+
+// Function to generate XML for each item
+function generateXML(item) {
+    var oid = formNumberToOID[item.form.formNumber] || '';
+
+    return `<ns2:FormDocuments>
+    <ns2:Met_FormAssociation>
+        <ns2:Met_PlanType>${item.documentDescription.replace(/; #\d+/, '')}</ns2:Met_PlanType>
+        <ns2:Met_PlanCode>${item.form.formName}</ns2:Met_PlanCode>
+    </ns2:Met_FormAssociation>
+    <ns2:Attachment>
+        <ns2:AttachmentKey>${oid}</ns2:AttachmentKey>
+        <ns2:Met_AttachmentStatusDesc>${item.product.productName}</ns2:Met_AttachmentStatusDesc>
+        <ns2:Met_AttachmentSize>${item.form.pagesCount}</ns2:Met_AttachmentSize>
+        <ns2:MimeType>${item.mimeTypeName.split('/').pop()}</ns2:MimeType>
+    </ns2:Attachment>
+</ns2:FormDocuments>\n\n`;
+}
+
+// Generate XML for each item
+var xmlOutput = "";
+for (var i = 0; i < json.items.length; i++) {
+    xmlOutput += generateXML(json.items[i]);
+}
+
+// Print XML output
+print(xmlOutput);
+
+
+
+
 let now = new Date();
 
 let currentDate = now.toISOString().split('T')[0];
