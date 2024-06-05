@@ -1,3 +1,10 @@
+let now = new Date();
+
+let currentDate = now.toISOString().split('T')[0];
+let currentTime = now.toTimeString().split(' ')[0];
+
+console.log(`Current Date: ${currentDate}`);
+console.log(`Current Time: ${currentTime}`);
 
 //
 var json = {
