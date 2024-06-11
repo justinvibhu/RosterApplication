@@ -1,4 +1,65 @@
 // Import required Java classes
+var ByteArrayInputStream = Java.type('java.io.ByteArrayInputStream');
+var DocumentBuilderFactory = Java.type('javax.xml.parsers.DocumentBuilderFactory');
+var InputSource = Java.type('org.xml.sax.InputSource');
+
+// XML string (assuming xmlStr contains your XML)
+var xmlStr = `
+<NS1:Envelope xmlns:NS1="http://schemas.xmlsoap.org/soap/envelope/">
+    <NS1:Body>
+        <NS2:FormRetrieval xmlns:NS2="http://services.eforms.metlife.com/formsAdminLookup/">
+            <ServiceInfo>
+                <TraceId>9c6269ef-2195-4fe2-a194-bc9dc6a81646</TraceId>
+            </ServiceInfo>
+            <DocInfo>
+                <ID>60392</ID>
+                <DocType>PDF</DocType>
+            </DocInfo>
+        </NS2:FormRetrieval>
+    </NS1:Body>
+</NS1:Envelope>`;
+
+// Parse the XML string
+var factory = DocumentBuilderFactory.newInstance();
+factory.setNamespaceAware(true);
+var builder = factory.newDocumentBuilder();
+var is = new InputSource(new ByteArrayInputStream(xmlStr.getBytes('UTF-8')));
+var xmlDoc = builder.parse(is);
+
+// Function to extract the ID value
+function extractIDValue() {
+    var docInfo = xmlDoc.getElementsByTagNameNS("*", "DocInfo").item(0);
+    if (docInfo) {
+        var idElement = docInfo.getElementsByTagNameNS("*", "ID").item(0);
+        if (idElement) {
+            return idElement.getTextContent().trim();
+        }
+    }
+    return null;
+}
+
+// Extract and log the ID value
+var idValue = extractIDValue();
+console.log(idValue);  // Output: 60392
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Import required Java classes
 var FileReader = Java.type('java.io.FileReader');
 var BufferedReader = Java.type('java.io.BufferedReader');
 var FileWriter = Java.type('java.io.FileWriter');
