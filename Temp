@@ -1,3 +1,17 @@
+
+
+const base64String = "eyJpdGVtcyI6W3sic2VsZi16119kbxHtv21pcy92MiszGxpZmUuY29tL2Rtcy12aWV3ZXIvdZViL3ZpZXdlciJ9LCJwcm9kdwNlciI6eyJTdGFrZWhvbGR1ck1hbmFnZXJvZm93bmVyIjoiVmFuYXRBYSwgTG1ZY539LCOMZX3zb2410nsicGVyShbwU1013KZW5zZw4sIEphY2tpZS39LCJmb3JtIjp/ImxpbmVvZkJ1c2luZXNzTmFtZS161kdyb3VwIEJ1bmVmaXRzIiwiZm9ybuShbwUiOiJEZw5eYwwgQ2xhaw@gm/ybsZsInZvcwdGlvbi161kRlbnRhbCBDbGFpbSBGb3Jtliwib25seURpcmVjdExpbmtJbmRpY2F0b3110i]@cnVlliwicGFnZXNDb3VudCI6IjYiLCJyZWdpb25MaxN@VGV40C16ZkFsbCBTJGF0ZXV3RpRVEYXR1VG1ZxNeywiwi joiMDUvMjMiLCJNYWpvc121cnNpb250dW1iZXIiOiIxIiwiZm9ybU51bWJlci161kpZMDMzMy03MT1205J9LCJwcmkwjp7InByb2R1Y3ROYW12EPILIAJ7IZEMSIsInByb2R1Y3RDbGFzc@5hbWUi0iJHcm91cCAtIERlbnRhbCJ9FV0s1m11dGFkYXRh1jp7ImNvdW501joxLCJsaw1pdC16MTAS.ImmZnNLOCISMX19";
+const byteString = atob(base64String);
+
+const byteLength = byteString.length;
+
+const bitLength = byteLength * 8;
+
+console.log(`Size of the byte stream in bits: ${bitLength}`);
+
+
+
+
 // Import required Java classes
 var ByteArrayInputStream = Java.type('java.io.ByteArrayInputStream');
 var DocumentBuilderFactory = Java.type('javax.xml.parsers.DocumentBuilderFactory');
