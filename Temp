@@ -1,3 +1,27 @@
+var JavaString = Java.type('java.lang.String');
+var Base64 = Java.type('java.util.Base64');
+var ByteArrayInputStream = Java.type('java.io.ByteArrayInputStream');
+var DocumentBuilderFactory = Java.type('javax.xml.parsers.DocumentBuilderFactory');
+var InputSource = Java.type('org.xml.sax.InputSource');
+
+var base64String = "eyJpdGVtcyI6W3sic2VsZi16119kbxHtv21pcy92MiszGxpZmUuY29tL2Rtcy12aWV3ZXIvdZViL3ZpZXdlciJ9LCJwcm9kdwNlciI6eyJTdGFrZWhvbGR1ck1hbmFnZXJvZm93bmVyIjoiVmFuYXRBYSwgTG1ZY539LCOMZX3zb2410nsicGVyShbwU1013KZW5zZw4sIEphY2tpZS39LCJmb3JtIjp/ImxpbmVvZkJ1c2luZXNzTmFtZS161kdyb3VwIEJ1bmVmaXRzIiwiZm9ybuShbwUiOiJEZw5eYwwgQ2xhaw@gm/ybsZsInZvcwdGlvbi161kRlbnRhbCBDbGFpbSBGb3Jtliwib25seURpcmVjdExpbmtJbmRpY2F0b3110i]@cnVlliwicGFnZXNDb3VudCI6IjYiLCJyZWdpb25MaxN@VGV40C16ZkFsbCBTJGF0ZXV3RpRVEYXR1VG1ZxNeywiwi joiMDUvMjMiLCJNYWpvc121cnNpb250dW1iZXIiOiIxIiwiZm9ybU51bWJlci161kpZMDMzMy07MT1205J9LCJwcmkwjp7InByb2R1Y3ROYW12EPILIAJ7IZEMSIsInByb2R1Y3RDbGFzc@5hbWUi0iJHcm91cCAtIERlbnRhbCJ9FV0s1m11dGFkYXRh1jp7ImNvdW501joxLCJsaw1pdC16MTAS.ImmZnNLOCISMX19";
+
+// Decode Base64 string to byte array
+var byteArray = Base64.getDecoder().decode(base64String);
+
+// Create ByteArrayInputStream from byte array
+var byteArrayInputStream = new ByteArrayInputStream(byteArray);
+
+// Use InputSource to read the byte array
+var inputSource = new InputSource(byteArrayInputStream);
+
+// Calculate the length of the byte array
+var byteLength = byteArray.length;
+
+// Convert bytes to bits
+var bitLength = byteLength * 8;
+
+print("Size of the byte stream in bits: " + bitLength);
 
 
 const base64String = "eyJpdGVtcyI6W3sic2VsZi16119kbxHtv21pcy92MiszGxpZmUuY29tL2Rtcy12aWV3ZXIvdZViL3ZpZXdlciJ9LCJwcm9kdwNlciI6eyJTdGFrZWhvbGR1ck1hbmFnZXJvZm93bmVyIjoiVmFuYXRBYSwgTG1ZY539LCOMZX3zb2410nsicGVyShbwU1013KZW5zZw4sIEphY2tpZS39LCJmb3JtIjp/ImxpbmVvZkJ1c2luZXNzTmFtZS161kdyb3VwIEJ1bmVmaXRzIiwiZm9ybuShbwUiOiJEZw5eYwwgQ2xhaw@gm/ybsZsInZvcwdGlvbi161kRlbnRhbCBDbGFpbSBGb3Jtliwib25seURpcmVjdExpbmtJbmRpY2F0b3110i]@cnVlliwicGFnZXNDb3VudCI6IjYiLCJyZWdpb25MaxN@VGV40C16ZkFsbCBTJGF0ZXV3RpRVEYXR1VG1ZxNeywiwi joiMDUvMjMiLCJNYWpvc121cnNpb250dW1iZXIiOiIxIiwiZm9ybU51bWJlci161kpZMDMzMy03MT1205J9LCJwcmkwjp7InByb2R1Y3ROYW12EPILIAJ7IZEMSIsInByb2R1Y3RDbGFzc@5hbWUi0iJHcm91cCAtIERlbnRhbCJ9FV0s1m11dGFkYXRh1jp7ImNvdW501joxLCJsaw1pdC16MTAS.ImmZnNLOCISMX19";
