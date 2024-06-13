@@ -1,3 +1,113 @@
+// Import required Java classes
+var ByteArrayInputStream = Java.type('java.io.ByteArrayInputStream');
+var DocumentBuilderFactory = Java.type('javax.xml.parsers.DocumentBuilderFactory');
+var InputSource = Java.type('org.xml.sax.InputSource');
+
+// Sample XML string
+var xmlStr = `
+<NS1:Envelope xmlns:NS1="http://schemas.xmlsoap.org/soap/envelope/">
+    <NS1:Body>
+        <NS2:ServiceRequest xmlns:NS2="http://services.eforms.metlife.com/formsAdminLookup/">
+            <ServiceInfo>
+                <TraceId>9c6269ef-2195-4fe2-a194-bc9dc6a81646</TraceId>
+            </ServiceInfo>
+            <FileLookup>
+                <DefaultSearchParams>
+                    <Param>
+                        <Name>Consumer</Name>
+                        <Value>MYBENEFITS</Value>
+                    </Param>
+                    <Param>
+                        <Name>MyBenefits Case Number</Name>
+                        <Value>5172342</Value>
+                    </Param>
+                </DefaultSearchParams>
+                <SearchSet>
+                    <Param>
+                        <Name>SitusState</Name>
+                        <Value>ME</Value>
+                    </Param>
+                </SearchSet>
+                <SearchSet>
+                    <Param>
+                        <Name>ProductAppID</Name>
+                        <Value>DENTAL-E</Value>
+                    </Param>
+                </SearchSet>
+            </FileLookup>
+        </NS2:ServiceRequest>
+    </NS1:Body>
+</NS1:Envelope>`;
+
+// Parse the XML string
+var factory = DocumentBuilderFactory.newInstance();
+factory.setNamespaceAware(true);
+var builder = factory.newDocumentBuilder();
+var is = new InputSource(new ByteArrayInputStream(xmlStr.getBytes('UTF-8')));
+var xmlDoc = builder.parse(is);
+
+// Function to extract all property values
+function extractAllPropertyValues() {
+    var paramElements = xmlDoc.getElementsByTagNameNS("*", "Param");
+    var results = [];
+    for (var i = 0; i < paramElements.getLength(); i++) {
+        var param = paramElements.item(i);
+        var name = param.getElementsByTagNameNS("*", "Name").item(0).getTextContent().trim();
+        var value = param.getElementsByTagNameNS("*", "Value").item(0).getTextContent().trim();
+        results.push({ name: name, value: value });
+    }
+    return results;
+}
+
+// Extract all property values
+var propertyValues = extractAllPropertyValues();
+
+// Extract the first occurrence of Consumer and MyBenefits Case Number
+var consumer = propertyValues.find(item => item.name === "Consumer").value;
+var caseNumber = propertyValues.find(item => item.name === "MyBenefits Case Number").value;
+
+// Filter out Consumer and MyBenefits Case Number from propertyValues
+var filteredPropertyValues = propertyValues.filter(item => item.name !== "Consumer" && item.name !== "MyBenefits Case Number");
+
+// Generate JSON output dynamically
+var jsonOutput = {
+    q: `((searchKeyParameterName=="Met_ClientId"; searchKeyParameterValue==${caseNumber});` +
+        filteredPropertyValues
+            .map(item => `(searchKeyParameterName=="${item.name}"; searchKeyParameterValue=="${item.value}")`)
+            .join(', ') + ")",
+    extension: {
+        sourceSystemName: "ExampleAppName", // Use appropriate value for sourceSystemName
+        searchTypeCode: "EAI1244"
+    },
+    metadata: {
+        limit: 10,
+        offset: 1
+    }
+};
+
+// Output the JSON
+print(JSON.stringify(jsonOutput, null, 2));
+
+// Output the fetched values
+print(`Consumer: ${consumer}`);
+print(`MyBenefits Case Number: ${caseNumber}`);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 var JavaString = Java.type('java.lang.String');
 var Base64 = Java.type('java.util.Base64');
 var ByteArrayInputStream = Java.type('java.io.ByteArrayInputStream');
