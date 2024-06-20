@@ -1,3 +1,8 @@
+Dear Team,We are currently in the process of migrating the AdminLookup service, specifically the getFormDocumentDetails and searchFormDocumentDetails functions, from the EIP to the new Quadient eForms platform. This service is utilized by both the MetOnline and GSSP applications via the EIP in our earlier legacy system. The same service will continue to be utilized by GSSP in the Quadient eForms system. No changes are required on the GSSP and MetOnline ends, as all necessary modifications will be implemented within Quadient eForms.To ensure a successful migration and verify that all functionalities are working as expected, we will need testing support from both the GSSP and MetOnline teams. Your cooperation and assistance in testing will be crucial for a smooth transition.Please let us know your availability for testing and any additional support you might require during this process.
+
+
+
+
 Hi DMF Team,
 
 As discussed in our recent call, we are working on a service from the consumer application to Quadient Eforms. We have noticed that the 'content size' field (the PDF size) is missing in the data retrieved from FileNet via the DMF API service.
