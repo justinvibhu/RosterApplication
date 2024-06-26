@@ -1,3 +1,103 @@
+function wrapInCustomCdata(xmlString, startTag, endTag) {
+    // Find the start and end of the content to be wrapped
+    const start = xmlString.indexOf(startTag);
+    const end = xmlString.indexOf(endTag) + endTag.length;
+
+    if (start === -1 || end === -1) {
+        throw new Error("Start tag or end tag not found in the XML string.");
+    }
+
+    const contentToWrap = xmlString.slice(start, end);
+
+    // Create a new string with the custom CDATA section
+    const wrappedContent = `<cdata>${contentToWrap}</cdata>`;
+
+    // Replace the original content with the custom CDATA wrapped content
+    const newXmlString = xmlString.slice(0, start) + wrappedContent + xmlString.slice(end);
+
+    // Remove the closing </eApp> tag
+    const finalXmlString = newXmlString.replace('</eApp>', '');
+
+    return finalXmlString;
+}
+
+function removeInitialSection(xmlString, removeUpToTag) {
+    // Find the end of the part to be removed
+    const endRemove = xmlString.indexOf(removeUpToTag);
+
+    if (endRemove === -1) {
+        throw new Error(`Tag ${removeUpToTag} not found in the XML string.`);
+    }
+
+    // Remove the specified initial section
+    const xmlWithoutInitialSection = xmlString.slice(endRemove);
+
+    return xmlWithoutInitialSection;
+}
+
+const xmlString = `
+<eApp xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="C:/Metlife TeleApp Project/xsltProjects_8/eAppExtended_9.xsd">
+    <PolNumber />
+    <PolSuffix />
+    <Company>
+        <CompanyID />
+        <CompanyCode />
+    </Company>
+    <Application>
+        <Name>IDI</Name>
+        <FormNames>IDIAPP05-1-NW</FormNames>
+        <PDFType>FLATTEN</PDFType>
+        <RespType>PDF</RespType>
+    </Application>
+    <empFirstName>Jane</empFirstName>
+    <empMiddleName>M</empMiddleName>
+    <empLastName>Doe</empLastName>
+    <empSexFemale>1</empSexFemale>
+    <empAddress>One Any Street</empAddress>
+    <empCity>Anytown</empCity>
+    <empStateCode>NJ</empStateCode>
+    <empZip>08801</empZip>
+    <empMailHome>1</empMailHome>
+    <empDob>4/25/1970</empDob>
+    <empAgeYears>49</empAgeYears>
+    <empSsn>123456789</empSsn>
+    <empPhoneNumber>2223334444</empPhoneNumber>
+    <empOccupationTitle>BSA</empOccupationTitle>
+    <empHireDate>05/10/2014</empHireDate>
+    <empAnnualSalaryAmt>50000</empAnnualSalaryAmt>
+    <compName>MetLife</compName>
+    <compAddress>101 MetLife Way</compAddress>
+    <compCity>Cary</compCity>
+    <compState>NC</compState>
+    <compZip>27513</compZip>
+    <empAtWorkIndYes>1</empAtWorkIndYes>
+    <empDisableNo>1</empDisableNo>
+    <empCitizenYes>1</empCitizenYes>
+    <empTobaccoNo>1</empTobaccoNo>
+    <beneName>Mark L Doe</beneName>
+    <beneRelationship>Spouse</beneRelationship>
+    <beneDob>7/14/1969</beneDob>
+    <empAppSignedAt>Anytown, NJ</empAppSignedAt>
+    <empAppSignDate>5/10/2014</empAppSignDate>
+    <empEsignatureId>Jane M Doe</empEsignatureId>
+</eApp>`;
+
+const removeUpToTag = '<empFirstName>';
+const startTag = '<empFirstName>';
+const endTag = '</empEsignatureId>';
+
+try {
+    const xmlWithoutInitialSection = removeInitialSection(xmlString, removeUpToTag);
+    const resultXml = wrapInCustomCdata(xmlWithoutInitialSection, startTag, endTag);
+    console.log(resultXml);
+} catch (error) {
+    console.error(error.message);
+}
+
+
+
+
+
 // Import required Java classes
 var ByteArrayInputStream = Java.type('java.io.ByteArrayInputStream');
 var DocumentBuilderFactory = Java.type('javax.xml.parsers.DocumentBuilderFactory');
