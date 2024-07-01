@@ -1,4 +1,79 @@
+var FileInputStream = Java.type("java.io.FileInputStream");
+var FileOutputStream = Java.type("java.io.FileOutputStream");
+var PdfReader = Java.type("com.itextpdf.kernel.pdf.PdfReader");
+var PdfWriter = Java.type("com.itextpdf.kernel.pdf.PdfWriter");
+var PdfDocument = Java.type("com.itextpdf.kernel.pdf.PdfDocument");
+var PdfAcroForm = Java.type("com.itextpdf.forms.PdfAcroForm");
+var XfaForm = Java.type("com.itextpdf.forms.xfa.XfaForm");
 
+var src = "path/to/your/xfa-form.pdf";
+var dest = "path/to/your/acroform-output.pdf";
+
+try {
+    var pdfReader = new PdfReader(new FileInputStream(src));
+    var pdfWriter = new PdfWriter(new FileOutputStream(dest));
+    var pdfDoc = new PdfDocument(pdfReader, pdfWriter);
+
+    var form = PdfAcroForm.getAcroForm(pdfDoc, true);
+    if (form != null && form.isXfaPresent()) {
+        var xfa = form.getXfaForm();
+
+        // Convert XFA to AcroForm
+        xfa.convertToAcroForm();
+        
+        pdfDoc.close();
+        print("XFA form successfully converted to AcroForm.");
+    } else {
+        print("The provided PDF does not contain an XFA form.");
+    }
+} catch (e) {
+    print("Error: " + e.message);
+    e.printStackTrace();
+}
+
+
+
+
+
+import com.itextpdf.forms.PdfAcroForm;
+import com.itextpdf.forms.xfa.XfaForm;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfReader;
+import com.itextpdf.kernel.pdf.PdfWriter;
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+public class ConvertXfaToAcroForm {
+    public static void main(String[] args) {
+        String src = "path/to/your/xfa-form.pdf";
+        String dest = "path/to/your/acroform-output.pdf";
+
+        try {
+            PdfDocument pdfDoc = new PdfDocument(new PdfReader(src), new PdfWriter(dest));
+
+            // Load the existing XFA form
+            PdfAcroForm form = PdfAcroForm.getAcroForm(pdfDoc, true);
+            if (form != null && form.isXfaPresent()) {
+                XfaForm xfa = form.getXfaForm();
+                
+                // Convert XFA to AcroForm
+                xfa.convertToAcroForm();
+                
+                pdfDoc.close();
+            } else {
+                System.out.println("The provided PDF does not contain an XFA form.");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+
+.
+....
 // Load necessary Java classes
 var FileInputStream = Java.type("java.io.FileInputStream");
 var FileOutputStream = Java.type("java.io.FileOutputStream");
