@@ -1,3 +1,50 @@
+// Load necessary Java classes
+var FileInputStream = Java.type("java.io.FileInputStream");
+var FileOutputStream = Java.type("java.io.FileOutputStream");
+var PdfReader = Java.type("com.itextpdf.kernel.pdf.PdfReader");
+var PdfWriter = Java.type("com.itextpdf.kernel.pdf.PdfWriter");
+var PdfDocument = Java.type("com.itextpdf.kernel.pdf.PdfDocument");
+var PdfAcroForm = Java.type("com.itextpdf.forms.PdfAcroForm");
+var XfaForm = Java.type("com.itextpdf.forms.xfa.XfaForm");
+
+var src = "path/to/your/xfa-form.pdf";
+var dest = "path/to/your/output.pdf";
+
+try {
+    // Open the source PDF document
+    var pdfReader = new PdfReader(new FileInputStream(src));
+    var pdfDoc = new PdfDocument(pdfReader);
+
+    // Get the AcroForm from the document
+    var form = PdfAcroForm.getAcroForm(pdfDoc, false);
+
+    if (form != null && form.isXfaPresent()) {
+        // Get the XFA form
+        var xfa = form.getXfaForm();
+
+        // Here you can process the XFA form as needed
+        // For example, you can extract the XML data
+        var xmlData = xfa.getXfaDomDocument().toString();
+        print("XFA XML Data: " + xmlData);
+
+        // Optionally, you can modify the XML data or form fields here
+
+        // Save the changes to a new PDF
+        var pdfWriter = new PdfWriter(new FileOutputStream(dest));
+        pdfDoc = new PdfDocument(pdfReader, pdfWriter);
+        pdfDoc.close();
+    } else {
+        print("The provided PDF does not contain an XFA form.");
+    }
+} catch (e) {
+    print("Error: " + e.message);
+    e.printStackTrace();
+}
+
+
+
+
+
 import os
 import shutil
 from PyPDF2 import PdfReader
