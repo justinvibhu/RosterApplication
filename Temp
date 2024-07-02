@@ -1,3 +1,52 @@
+
+// Include the necessary iText and Java classes
+var PdfReader = java.type('com.itextpdf.text.pdf.PdfReader');
+var PdfStamper = java.type('com.itextpdf.text.pdf.PdfStamper');
+var FileOutputStream = java.type('java.io.FileOutputStream');
+var IOException = java.type('java.io.IOException');
+var DocumentException = java.type('com.itextpdf.text.DocumentException');
+var AcroFields = java.type('com.itextpdf.text.pdf.AcroFields');
+var XfaForm = java.type('com.itextpdf.text.pdf.XfaForm');
+
+function convertXfaToAcroForm(src, dest) {
+    try {
+        // Read the source PDF
+        var pdfReader = new PdfReader(src);
+        // Prepare to write the output PDF
+        var pdfStamper = new PdfStamper(pdfReader, new FileOutputStream(dest));
+
+        // Get the form from the PDF
+        var form = pdfStamper.getAcroFields();
+        var xfa = form.getXfa();
+
+        // Check if the form contains XFA and convert to AcroForm
+        if (xfa.isXfaPresent()) {
+            xfa.setXfa(null, pdfStamper.getWriter());
+            pdfStamper.setFormFlattening(true);
+            console.log('XFA form successfully converted to AcroForm.');
+        } else {
+            console.log('The provided PDF does not contain an XFA form.');
+        }
+
+        // Close the stamper and reader
+        pdfStamper.close();
+        pdfReader.close();
+    } catch (e) {
+        if (e instanceof IOException || e instanceof DocumentException) {
+            e.printStackTrace();
+        } else {
+            throw e;
+        }
+    }
+}
+
+// Example usage
+var inputPdf = 'path/to/your/xfa-form.pdf';
+var outputPdf = 'path/to/your/acroform-output.pdf';
+convertXfaToAcroForm(inputPdf, outputPdf);
+
+
+
 var FileInputStream = Java.type("java.io.FileInputStream");
 var FileOutputStream = Java.type("java.io.FileOutputStream");
 var PdfReader = Java.type("com.itextpdf.kernel.pdf.PdfReader");
