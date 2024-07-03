@@ -1,4 +1,72 @@
 
+// Import necessary Java classes
+var File = Java.type('java.io.File');
+var Files = Java.type('java.nio.file.Files');
+var Paths = Java.type('java.nio.file.Paths');
+var PrinterJob = Java.type('java.awt.print.PrinterJob');
+var PDDocument = Java.type('org.apache.pdfbox.pdmodel.PDDocument');
+var PDFPageable = Java.type('org.apache.pdfbox.printing.PDFPageable');
+
+// Function to rename a PDF file
+function renamePdf(originalFilePath, newFilePath) {
+    var originalFile = new File(originalFilePath);
+    var newFile = new File(newFilePath);
+
+    // Check if the original file exists
+    if (!originalFile.exists()) {
+        print("The file " + originalFilePath + " does not exist.");
+        return false;
+    }
+
+    // Rename the file
+    var result = originalFile.renameTo(newFile);
+    if (result) {
+        print("File renamed to " + newFilePath);
+        return true;
+    } else {
+        print("Failed to rename the file.");
+        return false;
+    }
+}
+
+// Function to print a PDF file
+function printPdf(filePath) {
+    var file = new File(filePath);
+
+    // Check if the file exists
+    if (!file.exists()) {
+        print("The file " + filePath + " does not exist.");
+        return false;
+    }
+
+    // Load the PDF document
+    var document = PDDocument.load(file);
+    var job = PrinterJob.getPrinterJob();
+    job.setPageable(new PDFPageable(document));
+
+    // Print the PDF
+    if (job.printDialog()) {
+        job.print();
+        print("File " + filePath + " sent to printer.");
+        document.close();
+        return true;
+    } else {
+        print("Print job canceled.");
+        document.close();
+        return false;
+    }
+}
+
+// Example usage
+var originalFile = "path/to/your/original.pdf";
+var newFile = "path/to/your/new_name.pdf";
+
+if (renamePdf(originalFile, newFile)) {
+    printPdf(newFile);
+}
+
+
+
 // Include the necessary iText and Java classes
 var PdfReader = java.type('com.itextpdf.text.pdf.PdfReader');
 var PdfStamper = java.type('com.itextpdf.text.pdf.PdfStamper');
