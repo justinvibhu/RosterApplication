@@ -1,3 +1,102 @@
+// Import required Java classes
+var FileWriter = Java.type("java.io.FileWriter");
+var BufferedWriter = Java.type("java.io.BufferedWriter");
+var File = Java.type("java.io.File");
+var LocalDateTime = Java.type("java.time.LocalDateTime");
+var DateTimeFormatter = Java.type("java.time.format.DateTimeFormatter");
+
+// Sample metadata variables (populate them using your own logic)
+var body = getvar("body");
+var jobdir = getvar("jobdir");
+var jobid = getvar("sys.job-10");
+var bodyJSON = JSON.parse(body);
+var formName = getvar("FormName");
+var formNumber = getvar("FormNumber");
+var product = getvar("Product");
+var legalEntity = getvar("LegalEntity");
+var stateSelected = getvar("StateSelected");
+var formDescription = getvar("FormDescription");
+var uniqueIdentifier = getvar("UniqueIdentifier");
+// Add more metadata variables as needed...
+
+// Get today's date and current time in 'YYYY-MM-DD HH:mm:ss' format
+var now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
+// Set up CSV file paths
+var dailyFileName = "report_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) + ".csv";  // For daily report
+var permanentFileName = "permanent_report.csv";  // Permanent file
+var dailyFilePath = new File(__dirname, dailyFileName);
+var permanentFilePath = new File(__dirname, permanentFileName);
+
+// Function to check if file exists
+function fileExists(file) {
+    return file.exists();
+}
+
+// Function to create CSV with headers
+function createCsvFile(file) {
+    var writer = new BufferedWriter(new FileWriter(file, true)); // 'true' enables append mode
+    var headers = 'JobDir, JobID, FormName, FormNumber, Product, LegalEntity, StateSelected, FormDescription, UniqueIdentifier, Timestamp\n';
+    writer.write(headers);
+    writer.close();
+}
+
+// Function to append new data to the CSV
+function appendToCsvFile(file, data) {
+    var writer = new BufferedWriter(new FileWriter(file, true)); // 'true' ensures data is appended
+    var row = `${data.jobdir}, ${data.jobid}, ${data.formName}, ${data.formNumber}, ${data.product}, ${data.legalEntity}, ${data.stateSelected}, ${data.formDescription}, ${data.uniqueIdentifier}, ${data.timestamp}\n`;
+    writer.write(row);
+    writer.close();
+}
+
+// Prepare data object with the current timestamp
+var data = {
+    jobdir: jobdir,
+    jobid: jobid,
+    formName: formName,
+    formNumber: formNumber,
+    product: product,
+    legalEntity: legalEntity,
+    stateSelected: stateSelected,
+    formDescription: formDescription,
+    uniqueIdentifier: uniqueIdentifier,
+    timestamp: now // Add the current timestamp to the data
+    // Add more fields as necessary
+};
+
+// Check if today's CSV file (daily report) exists, if not, create it
+if (!fileExists(dailyFilePath)) {
+    createCsvFile(dailyFilePath);
+}
+
+// Check if permanent CSV file exists, if not, create it
+if (!fileExists(permanentFilePath)) {
+    createCsvFile(permanentFilePath);
+}
+
+// Append the metadata to both the daily report and the permanent report
+appendToCsvFile(dailyFilePath, data);
+appendToCsvFile(permanentFilePath, data);
+
+print(`Data successfully added to ${dailyFilePath.getAbsolutePath()} and ${permanentFilePath.getAbsolutePath()}`);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import pandas as pd
 import json
 
