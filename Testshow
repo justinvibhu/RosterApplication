@@ -1,0 +1,340 @@
+import streamlit as st
+
+import fitz # PyMuPDF
+
+import cv2
+
+import numpy as np
+
+import pandas as pd
+
+from PIL import Image
+
+import tempfile
+
+import os
+
+from io import BytesIO
+
+st.set_page_config(layout="wide")
+
+def compute_similarity_percentage(img1, img2):
+
+# Convert images to grayscale
+
+img1 = img1.convert("L")
+
+img2 = img2.convert("L")
+
+# Resize second image to match first image dimensions
+
+img2 img2.resize(img1.size)
+
+#Convert images to NumPy arrays
+
+img1_array = np.array(img1, dtype=np.float32)
+
+img2_array = np.array(img2, dtype=np.float32)
+
+# Compute Mean Squared Error (MSE) mse = np.mean((img1_array img2_array) ** 2)
+
+# Normalize MSE to a similarity percentage (100% means identical, 0% means very different)
+
+max_pixel_value 255 # Max intensity in grayscale
+
+similarity_percentage = max(0, 100 (mse / (max_pixel_value ** 2) * 100))
+
+return round(similarity_percentage, 2) # Return similarity as a percentage# Function to extract text from PDFs
+
+def extract_text_from_pdfs(pdf_path1,pdf_path2, output_file="text_comparison.xlsx"):
+
+doc1 fitz.open(pdf_path1)
+
+text1= "\n".join([page.get_text("text") for page in doc1])
+
+doc2 fitz.open(pdf_path2)
+
+text2= "\n".join([page.get_text("text") for page in doc2])
+
+text1_lines = text1.split("\n")
+
+40
+
+text2_lines = text2.split("\n")
+
+41
+
+42
+
+43
+
+44
+
+45
+
+46
+
+47
+
+48
+
+49
+
+line1 text1_lines[i] if i < len(text1_lines) else "---- (Not in Text1)
+
+line2 text2_lines[i] if i < len(text2_lines) else (Not in Text2)
+
+50
+
+51
+
+52
+
+53
+
+54
+
+differences = []
+
+# Find the max lines to compare both texts completely max_lines = max(len(text1_lines), len (text2_lines))
+
+for i in range(max_lines):
+
+if linel != line2:
+
+differences.append([i + 1, line1, line2])
+
+#Convert to DataFrame
+
+55
+
+df= pd.DataFrame(differences, columns=["Line Number", "Text1", "Text2"])
+
+56
+
+57
+
+#Save to Excel
+
+58
+
+59
+
+df.to_excel(output_file, index=False, sheet_name="Text Differences")
+
+print (f"Comparison saved to: {output_file)")
+
+I
+
+51
+
+52
+
+53
+
+def convert_pdf_to_images(pdf_path):
+
+# Convert PDF pages to images without Poppler
+
+64
+
+doc fitz.open(pdf_path)
+
+65
+
+images = []
+
+66
+
+67
+
+68
+
+69
+
+78
+
+71
+
+72
+
+73
+
+74
+
+for page in doc:
+
+pix page.get_pixmap()
+
+img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
+
+images.append(img)
+
+return images
+
+#Function to compare images and highlight differences with a red outline
+
+def compare_images_with_red_outline(img1, img2):
+
+img1 gray = cv2.cvtColor(np.array(img1), cv2.COLOR RGB2GRAY)
+# Compute the absolute difference
+
+diff = cv2.absdiff(img1_gray, img2_gray)
+
+thresh= cv2.threshold (diff, 30, 255, cv2.THRESH_BINARY)
+
+# Find contours to detect changes
+
+contours, = cv2.findContours (thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+img1_array = np.array(img1)
+
+# Draw red bounding boxes around differences
+
+for contour in contours:
+
+if cv2.contourArea (contour) > 20: # Ignore very small changes
+
+x, y, w, h = cv2.boundingRect(contour)
+
+cv2.rectangle(img1_array, (x, y), (x+w, y+h), (255, 255, 0), 2) # Red color
+
+return img1_array # Return image with red outline
+
+# Function to save differences to Excel
+
+def save_differences_to_excel(text_diff):
+
+output = Bytes10()
+
+df = pd.DataFrame(text_diff, columns=["Page No(Baseline)", "Page No (Target)", pdf1.name], pdf2.name, "Difference"])
+
+df.to_excel(output, index=False, engine='openpyxl')
+
+output.seek(0)
+
+return output
+
+# Streamlit UI
+
+#st.write("PDF Comparator Highlighted Differences")
+
+# Upload PDF files
+
+coll, col2 st.columns(2)
+
+with col1:
+
+pdf1 st.sidebar.file_uploader("Upload First PDF", type="pdf")
+
+with col2:
+
+pdf2 = st.sidebar.file_uploader("Upload Second PDF", type="pdf")
+
+if pdf1 and pdf2:
+
+# Save files to temporary location
+
+with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file1:
+
+temp_file1.write(pdf1.read())
+
+temp_path1 = temp_file1.name
+
+with tempfile. NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file2:
+
+temp_file2.write(pdf2.read())
+
+temp_path2 = temp_file2.name
+
+if st.sidebar.button("Compare Documents"):
+
+# Extract text differences
+
+extract_text_from_pdfs(temp_path1, temp_path2)
+
+#text2 = extract_text_from_pdf(temp_path2)
+
+#res=text1 + "difference"+text2
+
+#print(res)
+
+#text_diff = list(set(text1.split("\n")) ^ set(text2.split("\n")))
+
+#print(text_diff)
+
+# Convert PDFs to images
+
+images1 = convert_pdf_to_images (temp_path1)
+
+images2 = convert_pdf_to_images (temp_path2)
+
+#st.subheader(" Differences in Text")
+
+I
+
+#st.sidebar.write("\n".join(text_diff) if text_diff else "No text differences found.")
+
+# Compare and display images
+
+#st.subheader(" PDF Comparison with Highlighted Differences")
+
+for i, (img1, img2) in enumerate (zip(images1, images2)):
+
+diff_image = compare_images_with_red_outline(img1, img2)
+
+# Compute similarity
+
+similarity = compute_similarity_percentage(img1, img2)
+
+# Display images
+
+#st.image([images1, images2], caption=["Image 1", "Image 2"], width=300)
+
+#st.write(f"### Similarity Score: (similarity}.%")
+
+x = f"(similarity:.2f}"
+
+st.write(f"### Similarity Score: {x}%")
+
+col1, col2, col3 = st.columns(3)
+
+with col1:
+
+st.image(img1, caption=f"Master doc Page {i+1}", use_container_width=True)
+
+with col2:
+
+st.image(img2, caption=f"Other doc Page (i+1)", use_container_width=True)
+
+with col3:
+
+st.image(diff_image, caption=f"Differences Highlighted Page (i+1}", use_container_width=True)
+
+# Export to Excel
+
+#text_diff = [[i+1, i+1, text1, text2, text_diff]]
+
+I
+
+# Call the function
+
+#output_excel = save_differences_to_excel(text_diff)
+
+# Save the file locally (optional)
+
+#with open("differences.xlsx", "wb") as f:
+
+#f.write(output_excel.getvalue())
+
+#print("Excel file saved successfully!")
+
+#st.sidebar.download_button("Download Differences as Excel", output_excel, file_name="pdf_differences.xlsx")
+
+# Show similarity result
+
+# Cleanup temporary files
+
+os.remove(temp_path1)
+
+os.remove(temp_path2)
