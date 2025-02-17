@@ -1,0 +1,271 @@
+import streamlit as st
+
+import pdfplumber
+
+import pandas as pd
+
+From pdfminer.high_level import extract_pages
+
+from pdfminer.layout import LTTextBox, LTTextLine, LTChar
+
+From io import BytesIO
+
+Extract text from a PDF (Page-wise)
+
+def extract_text(file):
+
+text_content = []
+
+with pdfplumber.open(file) as pdf:
+
+for page in pdf.pages:
+
+extracted_text = page.extract_text() if page.extract_text() else
+
+text_content.append(extracted_text)
+
+return text_content # List of text per page
+
+Extract formatting (font, size) from a PDF (Page-wise)
+
+ef extract_formatting(file):
+
+formatting = []
+
+for page_layout in extract_pages(file):
+
+page_formatting = []
+
+for element in page_layout:
+
+if isinstance(element, (LTTextBox, LTTextLine)):
+
+for text line in element:
+
+if isinstance(text_line, LTChar):
+
+page_formatting.append({
+
+"text": text_line.get_text(), "font": text_line.fontname,
+
+"size": text line.size
+
+})
+
+formatting.append(page_formatting) # Store per-page formatting
+
+return formatting
+
+Compare PDFs: Content + Formatting
+
+Def compare_pdfs(pdf1, pdf2):
+
+text1 = extract_text(pdf1)
+
+text2 = extract_text(pdf2)
+
+format1 extract_formatting(pdf1)
+
+format2 extract_formatting(pdf2)
+
+max_pages = max(len(text1), len(text2))
+
+similar_pages = 0
+
+different_pages = 0
+
+differences = []
+
+for page in range(max_pages):
+
+line_differences = []
+
+lines1 = text1[page].split("\n") if page < len(text1) else []
+
+lines2 = text2[page].split("\n") if page < len(text2) else []
+
+max_lines = max(len(lines1), len(lines2))
+
+I
+
+format_page1 = format1[page] if page < len(format1) else []
+
+format_page2 = format2[page] if page < len(format2) else []
+
+page_has_difference = False
+
+for i in range(max_lines):
+
+line1 lines1[i] if i < len(lines1) else ""
+
+line2 lines2[i] if i < len(lines2) else ""
+
+font1 = format_page1[i]["font"] if i < len(format_page1) else "N/A"
+
+size1 = format_page1[i]["size"] if i < len(format_page1) else "N/A" format_page2[i]["font"] if i < len(format_page2) else "N/A"
+
+font2 = size2 = format_page2[i]["size"] if i < len(format_page2) else "N/A"
+
+# Check for differences
+
+if line1 != line2 or font1 != font2 or size1 != size2:
+
+page_has_difference = True
+
+line_differences.append({
+
+"Page": page + 1,
+
+"Line No": i + 1,
+
+"PDF 1 Text": line1,
+
+"PDF 2 Text": line2,
+
+"PDF 1 Font": font1,
+
+"PDF 2 Font": font2,
+
+"PDF 1 Font Size": size1,
+
+"PDF 2 Font Size": size2,
+
+})
+
+if page_has_difference:
+
+different_pages += 1
+
+differences.extend(line_differences)
+
+I
+
+}
+
+else:
+
+similar pages += 1
+
+summary = {
+
+"Total Pages PDF 1": len(text1),
+
+"Total Pages PDF 2": len(text2),
+
+"Similar Pages": similar_pages,
+
+"Different Pages": different_pages
+
+return summary, differences
+
+# Generate Excel Report
+
+def generate_excel(summary, differences, master_mode=False):
+
+output = Bytes10()
+
+with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
+
+if master_mode:
+
+for file_name, (file_summary, diff_data) in summary.items():
+
+pd.DataFrame([file_summary]).to_excel(writer, sheet_name=f"{file_name[:30]}_Summary", index=False)
+
+pd.DataFrame(diff_data).to_excel(writer, sheet_name=f"{file_name[:30]}_Details", index=False)
+
+else:
+
+pd.DataFrame([summary]).to_excel(writer, sheet_name="Summary", index=False)
+
+pd.DataFrame(differences).to_excel(writer, sheet_name="Differences", index=False)
+
+output.seek(0)
+
+return output
+
+
+
+# Streamlit UI
+
+st.write(" PDF Comparison Tool")
+
+st.sidebar.write("Upload PDFs to compare **both text and formatting** differences.")
+
+comparison_mode = st.sidebar.radio("Select Comparison Mode:", ["Compare Two PDFs", "Compare Master File with Multiple PDFs"
+
+#Mode 1: Compare Two PDFs
+
+if comparison_mode == "Compare Two PDFs":
+
+pdf1 = st.sidebar.file_uploader("Upload First PDF", type="pdf")
+
+pdf2 = st.sidebar.file_uploader("Upload Second PDF", type="pdf")
+
+if pdf1 and pdf2:
+
+st.sidebar.write("Comparing PDFs...")
+
+summary, differences = compare_pdfs(pdf1, pdf2)
+
+st.subheader(" Summary")
+
+st.write(pd.DataFrame ([summary]))
+
+if differences:
+
+st.subheader(" Differences Found")
+
+st.write(pd.DataFrame (differences))
+
+excel_output = generate_excel(summary, differences)
+
+st.download_button(
+
+label=" Download Report (Excel)",
+
+data=excel_output,
+
+file_name="pdf_comparison_report.xlsx",
+
+mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+
+)
+
+#Mode 2: Compare Master PDF with Multiple PDFs
+
+elif comparison_mode == "Compare Master File with Multiple PDFs":
+
+master_pdf = st.sidebar.file_uploader("Upload Master PDF", type="pdf")
+
+pdf_files st.sidebar.file_uploader("Upload PDFs to Compare with Master", type="pdf", accept_multiple_files=True)
+
+if master_pdf and pdf_files:
+if master_pdf and pdf_files:
+
+results = {}
+
+for pdf in pdf_files:
+
+file_name = pdf.name
+
+st.write(f"Comparing {file_name} with Master PDF...")
+
+summary, differences = compare_pdfs(master_pdf, pdf)
+
+results[file_name] = (summary, differences)
+
+excel_output = generate_excel(results, differences, master_mode=True)
+
+st.download_button(
+
+label=" Download Batch Report (Excel)",
+
+data=excel_output,
+
+file_name="master_pdf_comparison_report.xlsx",
+
+mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+
+)
+
