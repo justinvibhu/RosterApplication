@@ -25,3 +25,13 @@ While working on one of the MetOnline functionalities, specifically the searchFr
 I discussed this with Sachin Rawat from DMF, and he mentioned that this field isn't integrated into the DMF API service call, which is why we can't get the 'content size' metadata in our response. We need to discuss this with the DMF onshore lead, Lauon, to integrate this field into the existing service.
 
 I've attached a screenshot for your reference.
+
+# Load Excel file
+df = pd.read_excel('data.xlsx')  # Adjust filename and sheetname if needed
+
+# Group and process
+grouped = df.groupby('OID')['CustID'].apply(lambda x: ','.join(map(str, x))).reset_index()
+grouped.columns = ['OID', 'CustIDs']
+
+# Save result to Excel
+grouped.to_excel('output.xlsx', index=False)
