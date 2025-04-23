@@ -1,3 +1,53 @@
+Sure! Here's a JavaScript program that takes an array of objects and merges entries with the same Prod and Subprod, collecting their Form values:
+
+const data = [
+  { Prod: "abc", Subprod: "a1", Form: "a1" },
+  { Prod: "abc", Subprod: "a1", Form: "a2" },
+  { Prod: "abd", Subprod: "a2", Form: "a1" }
+];
+
+// Use a Map to group by Prod + Subprod
+const grouped = new Map();
+
+for (const item of data) {
+  const key = `${item.Prod}-${item.Subprod}`;
+  if (!grouped.has(key)) {
+    grouped.set(key, { Prod: item.Prod, Subprod: item.Subprod, Forms: [] });
+  }
+  grouped.get(key).Forms.push(item.Form);
+}
+
+// Convert Map values to array of merged objects
+const output = Array.from(grouped.values()).map(group => ({
+  Prod: group.Prod,
+  Subprod: group.Subprod,
+  Forms: group.Forms
+}));
+
+console.log(output);
+
+Output:
+
+[
+  {
+    Prod: "abc",
+    Subprod: "a1",
+    Forms: ["a1", "a2"]
+  },
+  {
+    Prod: "abd",
+    Subprod: "a2",
+    Forms: ["a1"]
+  }
+]
+
+Let me know if you want to keep the output in a specific format like nested JSON or flatten the structure differently.
+
+
+
+
+
+
 // Import required Java classes
 var FileWriter = Java.type("java.io.FileWriter");
 var BufferedWriter = Java.type("java.io.BufferedWriter");
