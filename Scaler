@@ -1,0 +1,36 @@
+Content promotion 
+// Create a new date instance
+let currentDate = new Date();
+
+// Extract and format day, month, and year
+let dd = currentDate.getDate().toString().padStart(2, '0');
+let mm = (currentDate.getMonth() + 1).toString().padStart(2, '0');
+let yyyy = currentDate.getFullYear().toString();
+
+// Combine parts into DD_MM_YYYY format
+let formatted = `${dd}_${mm}_${yyyy}`;
+
+// Assign to job variable
+setvar("CurrentDate", formatted);
+
+
+ENV 
+// Set job priority to 90
+currentJob.setPriority(90)
+
+// Retrieve input from custom variable
+def inputInitials = CustomVariables.body.get()
+
+// Determine if 'Initials' variable already exists
+def doesInitialsExist = IcmVariables.scaler.Initials.exists()
+
+// Conditionally update or create the 'Initials' variable
+if (doesInitialsExist) {
+    IcmVariables.scaler.Initials.updateString(inputInitials)
+    def message = "The value of the 'Initials' environment variable has been updated to: ${inputInitials}"
+    CustomVariables.Response.set(message)
+} else {
+    IcmVariables.scaler.Initials.createString(inputInitials)
+    def message = "The 'Initials' environment variable has been created and its value set to: ${inputInitials}"
+    CustomVariables.Response.set(message)
+}
